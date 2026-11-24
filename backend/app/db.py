@@ -1,6 +1,8 @@
 import json
+import logging
 import os
 import sqlite3
+import tempfile
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
@@ -28,9 +30,29 @@ def _now() -> str:
 
 class Database:
     def __init__(self, path: str) -> None:
-        self.path = path
-        parent = os.path.dirname(os.path.abspath(path))
-        os.makedirs(parent, exist_ok=True)
+        self.path = path if self._writable(path) else self._fallback(path)
+
+    @staticmethod
+    def _writable(path: str) -> bool:
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+            c = sqlite3.connect(path, timeout=15)
+            c.execute("CREATE TABLE IF NOT EXISTS _probe(x)")
+            c.execute("DROP TABLE _probe")
+            c.commit()
+            c.close()
+            return True
+        except Exception:
+            return False
+
+    @staticmethod
+    def _fallback(path: str) -> str:
+        fb = os.path.join(tempfile.gettempdir(), "app.db")
+        logging.getLogger("db").warning(
+            "Cannot write database at %s; falling back to %s (history will NOT persist). "
+            "Check DATABASE_URL and the disk mount permissions.", path, fb
+        )
+        return fb
 
     @contextmanager
     def conn(self):
