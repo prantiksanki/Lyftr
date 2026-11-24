@@ -27,7 +27,9 @@ class Settings:
         self.api_keys = [k.strip() for k in os.getenv("LLM_API_KEYS", "").split(",") if k.strip()]
         self.database_url = os.getenv("DATABASE_URL", "sqlite:///./app.db")
         self.allowed_origins = [
-            o.strip() for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",") if o.strip()
+            o.strip().rstrip("/")
+            for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+            if o.strip()
         ]
         self.enable_failure_simulation = _bool("ENABLE_FAILURE_SIMULATION")
         self.model = os.getenv("LLM_MODEL", "openrouter/google/gemini-3.1-flash-lite")
