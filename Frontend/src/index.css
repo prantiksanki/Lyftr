@@ -1,0 +1,11 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+}
+
+html, body, #root { height: 100%; margin: 0; background: #000; }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; letter-spacing: -0.011em; }
